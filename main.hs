@@ -43,7 +43,7 @@ formatGroup (_gid, members) =
     intercalate "," $ map show $ sort members
 
 -- Algoritmo Union-Find para formar grupos
-buildGroups :: Int -> [(Int, Int, Float)] -> [[Int]]
+buildGroups :: Int -> [(Int, Int, Double)] -> [[Int]]
 buildGroups n edges =
     let parents = [0..n]  -- índice 0 ignorado, usamos índices começando de 1
         finalParents = foldl (\ps (a, b, _) -> union a b ps) parents edges
@@ -75,7 +75,7 @@ replaceAt idx val xs =
     take idx xs ++ [val] ++ drop (idx + 1) xs
 
 -- Leitura do arquivo CSV
-readInputFile :: FilePath -> IO [([Float], Int)]
+readInputFile :: FilePath -> IO [([Double], Int)]
 readInputFile filename = do
     contents <- readFile filename
     let linesOfFile = lines contents
@@ -91,7 +91,7 @@ splitByComma (c:cs)
     rest = splitByComma cs
 
 -- Parser da linha CSV
-parseLine :: Int -> String -> ([Float], Int)
+parseLine :: Int -> String -> ([Double], Int)
 parseLine idx line =
     let values = splitByComma line
         floats = map (read . trim) values
@@ -103,17 +103,17 @@ trim = f . f
   where f = reverse . dropWhile (`elem` " \t\r\n")
 
 -- Distância euclidiana
-calculateDistance :: [Float] -> [Float] -> Float
+calculateDistance :: [Double] -> [Double] -> Double
 calculateDistance a b = sqrt . sum $ zipWith (\x y -> (x - y) ^ 2) a b
 
 -- Encontra o ponto mais próximo
-getNearestPoint :: [([Float], Int)] -> [Float] -> (Int, Float)
+getNearestPoint :: [([Double], Int)] -> [Double] -> (Int, Double)
 getNearestPoint points current =
     let distances = zipWith (\(coords, _) i -> (i, calculateDistance current coords)) points [0..]
     in minimumBy (comparing snd) distances
 
 -- Conexões em MST com abordagem greedy
-getConnections :: [([Float], Int)] -> [(Int, Int, Float)]
+getConnections :: [([Double], Int)] -> [(Int, Int, Double)]
 getConnections [] = []
 getConnections (start:rest) = go start rest []
   where
@@ -126,5 +126,5 @@ getConnections (start:rest) = go start rest []
         in go nearest newRemaining newPath
 
 -- Formata conexão para saída
-formatConnection :: (Int, Int, Float) -> String
+formatConnection :: (Int, Int, Double) -> String
 formatConnection (a, b, d) = show a ++ " -> " ++ show b ++ " (distância: " ++ show d ++ ")"
